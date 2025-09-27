@@ -1,14 +1,16 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:device_preview/device_preview.dart';
-import 'home_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:simple_app/home_screen.dart';
+import 'package:simple_app/models/file_manager.dart';
 
-void main() => runApp(
-  DevicePreview(
-    enabled: !kReleaseMode, // Enable it only in debug mode
-    builder: (context) => const MyApp(),
-  ),
-);
+void main() {
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => FileManager(),
+      child: const MyApp(),
+    ),
+  );
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -16,13 +18,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      useInheritedMediaQuery: true, // Important for device_preview
-      locale: DevicePreview.locale(context),
-      builder: DevicePreview.appBuilder,
-      title: 'Simple App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+      title: 'Dart Edit Runner',
+      theme: ThemeData.dark().copyWith(
+        primaryColor: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+          backgroundColor: Colors.grey[900],
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.grey[400],
+        ),
       ),
       home: const HomeScreen(),
     );

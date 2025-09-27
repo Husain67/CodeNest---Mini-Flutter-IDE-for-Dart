@@ -1,91 +1,94 @@
 import 'package:flutter/material.dart';
-import 'package:simple_app/screens/feedback_screen.dart';
-import 'package:simple_app/screens/privacy_policy_screen.dart';
-import 'package:simple_app/screens/cloud_emulator_screen.dart';
-import 'package:simple_app/widgets/social_media_buttons.dart';
+import 'package:simple_app/screens/coming_soon_screen.dart';
+import 'package:simple_app/screens/create_file_screen.dart';
+import 'package:simple_app/screens/file_list_view.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int _selectedIndex = 0;
+
+  static const List<Widget> _widgetOptions = <Widget>[
+    FileListView(),
+    CreateFileScreen(),
+  ];
+
+  void _onItemTapped(int index) {
+    switch (index) {
+      case 0: // Home
+        setState(() {
+          _selectedIndex = 0;
+        });
+        break;
+      case 2: // Create
+        setState(() {
+          _selectedIndex = 1;
+        });
+        break;
+      case 1: // Search
+        _navigateToComingSoon('Search');
+        break;
+      case 3: // AI Chat
+        _navigateToComingSoon('AI Chat');
+        break;
+      case 4: // Settings
+        _navigateToComingSoon('Settings');
+        break;
+    }
+  }
+
+  void _navigateToComingSoon(String featureName) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ComingSoonScreen(featureName: featureName),
+      ),
+    );
+  }
+
+  int get _navBarIndex {
+    if (_selectedIndex == 0) return 0; // Home
+    if (_selectedIndex == 1) return 2; // Create
+    return 0;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
+      body: Center(
+        child: _widgetOptions.elementAt(_selectedIndex),
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text(
-                'Menu',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.feedback),
-              title: const Text('Feedback'),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const FeedbackScreen()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.cloud_circle),
-              title: const Text('Cloud Emulator'),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-                 Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const CloudEmulatorScreen()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.privacy_tip),
-              title: const Text('Privacy Policy'),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-                 Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const PrivacyPolicyScreen()),
-                );
-              },
-            ),
-            const Divider(),
-            const ListTile(
-              title: Text('App Version 1.0.0'),
-            ),
-          ],
-        ),
-      ),
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Welcome to our App!',
-              style: TextStyle(fontSize: 24),
-            ),
-            SizedBox(height: 40),
-            Text(
-              'Follow us on social media:',
-              style: TextStyle(fontSize: 16),
-            ),
-            SizedBox(height: 20),
-            SocialMediaButtons(),
-          ],
-        ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: 'Search',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add),
+            label: 'Create',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat),
+            label: 'AI Chat',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+        ],
+        currentIndex: _navBarIndex,
+        selectedItemColor: Colors.amber[800],
+        onTap: _onItemTapped,
+        type: BottomNavigationBarType.fixed,
       ),
     );
   }
