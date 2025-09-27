@@ -6,9 +6,10 @@ import 'package:flutter_code_editor/flutter_code_editor.dart';
 import 'package:flutter_highlight/themes/monokai-sublime.dart';
 import 'package:highlight/languages/dart.dart';
 
-// IMPORTANT: In a real app, this key should NOT be hardcoded.
-// This is a workaround for an environment issue where creating a separate file fails.
-const String paizaApiKey = 'guest';
+// TODO: Insert your own paiza.io API key here.
+// You can get a free key from the paiza.io website.
+// Using 'guest' is for demonstration only and may be unreliable.
+const String paizaApiKey = 'guest'; // Replace 'guest' with your actual key.
 
 class EditorScreen extends StatefulWidget {
   final FileModel file;
@@ -55,6 +56,13 @@ class _EditorScreenState extends State<EditorScreen> {
 
   Future<void> _runCode() async {
     if (_isLoading) return;
+
+    if (paizaApiKey == 'guest' || paizaApiKey.isEmpty) {
+      setState(() {
+        _output = 'Error: API Key is not set.\nPlease set your paiza.io API key in editor_screen.dart';
+      });
+      return;
+    }
 
     setState(() {
       _isLoading = true;
