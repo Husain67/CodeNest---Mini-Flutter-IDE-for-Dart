@@ -19,7 +19,7 @@ class ComingSoonScreen extends StatelessWidget {
             Icon(
               Icons.construction,
               size: 80,
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white70,
             ),
             const SizedBox(height: 20),
             Text(
@@ -27,7 +27,7 @@ class ComingSoonScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withAlpha(230), // 90% opacity
               ),
             ),
             const SizedBox(height: 10),
@@ -36,7 +36,7 @@ class ComingSoonScreen extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white70,
               ),
             ),
           ],

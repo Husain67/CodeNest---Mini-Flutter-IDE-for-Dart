@@ -8,10 +8,10 @@ class CreateFileScreen extends StatefulWidget {
   const CreateFileScreen({super.key});
 
   @override
-  _CreateFileScreenState createState() => _CreateFileScreenState();
+  CreateFileScreenState createState() => CreateFileScreenState();
 }
 
-class _CreateFileScreenState extends State<CreateFileScreen> {
+class CreateFileScreenState extends State<CreateFileScreen> {
   final _fileNameController = TextEditingController();
   String? _selectedFileType;
   final _fileTypes = ['Dart', 'JSON', 'HTML', 'Text'];
@@ -30,7 +30,6 @@ class _CreateFileScreenState extends State<CreateFileScreen> {
       return;
     }
 
-    // This check will be improved in a later step
     if (fileManager.fileExists(fileName)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -47,7 +46,6 @@ class _CreateFileScreenState extends State<CreateFileScreen> {
     );
     fileManager.addFile(newFile);
 
-    // Navigate to the editor screen with the new file
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => EditorScreen(file: newFile),
@@ -71,7 +69,7 @@ class _CreateFileScreenState extends State<CreateFileScreen> {
             Text(
               'File Name',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withAlpha(204), // 80% opacity
                 fontSize: 16,
               ),
             ),
@@ -93,7 +91,7 @@ class _CreateFileScreenState extends State<CreateFileScreen> {
             Text(
               'File Type',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withAlpha(204), // 80% opacity
                 fontSize: 16,
               ),
             ),

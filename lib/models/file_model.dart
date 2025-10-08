@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class FileModel {
   final String name;
   final String type;

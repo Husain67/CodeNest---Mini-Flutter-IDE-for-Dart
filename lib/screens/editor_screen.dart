@@ -17,10 +17,10 @@ class EditorScreen extends StatefulWidget {
   const EditorScreen({super.key, required this.file});
 
   @override
-  _EditorScreenState createState() => _EditorScreenState();
+  EditorScreenState createState() => EditorScreenState();
 }
 
-class _EditorScreenState extends State<EditorScreen> {
+class EditorScreenState extends State<EditorScreen> {
   late CodeController _codeController;
   String _output = '';
   bool _isLoading = false;
