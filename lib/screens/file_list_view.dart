@@ -28,7 +28,7 @@ class FileListView extends StatelessWidget {
                   title: Text(file.name, style: const TextStyle(color: Colors.white)),
                   subtitle: Text(
                     DateFormat.yMMMd().format(file.createdDate),
-                    style: TextStyle(color: Colors.white.withOpacity(0.6)),
+                    style: const TextStyle(color: Colors.white60),
                   ),
                   trailing: PopupMenuButton<String>(
                     onSelected: (value) {
