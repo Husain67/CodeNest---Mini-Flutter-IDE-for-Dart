@@ -16,7 +16,7 @@ class ComingSoonScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.construction,
               size: 80,
               color: Colors.white70,
@@ -34,7 +34,7 @@ class ComingSoonScreen extends StatelessWidget {
             Text(
               'The "$featureName" feature is under development.',
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 color: Colors.white70,
               ),

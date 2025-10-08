@@ -6,7 +6,7 @@ import 'package:flutter_code_editor/flutter_code_editor.dart';
 import 'package:flutter_highlight/themes/monokai-sublime.dart';
 import 'package:highlight/languages/dart.dart';
 
-// TODO: Insert your own paiza.io API key here.
+// IMPORTANT: Insert your own paiza.io API key here.
 // You can get a free key from the paiza.io website.
 // Using 'guest' is for demonstration only and may be unreliable.
 const String paizaApiKey = 'guest'; // Replace 'guest' with your actual key.
