@@ -45,7 +45,7 @@ class ErrorScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12.0),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.2),
+                color: Colors.black.withAlpha(51), // 20% opacity
                 borderRadius: BorderRadius.circular(8.0),
               ),
               child: Text(
@@ -70,7 +70,7 @@ class ErrorScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12.0),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.2),
+                color: Colors.black.withAlpha(51), // 20% opacity
                 borderRadius: BorderRadius.circular(8.0),
               ),
               child: Text(
