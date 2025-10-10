@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_app/home_screen.dart';
 import 'package:simple_app/models/file_manager.dart';
+import 'package:simple_app/models/settings_manager.dart';
 import 'package:simple_app/screens/error_screen.dart';
 
 // Global key to access the navigator from anywhere.
@@ -19,8 +20,11 @@ void main() {
     };
 
     runApp(
-      ChangeNotifierProvider(
-        create: (context) => FileManager(),
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (context) => FileManager()),
+          ChangeNotifierProvider(create: (context) => SettingsManager()),
+        ],
         child: const MyApp(),
       ),
     );

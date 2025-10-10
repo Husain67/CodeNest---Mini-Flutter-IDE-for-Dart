@@ -43,6 +43,14 @@ class FileManager extends ChangeNotifier {
     notifyListeners();
   }
 
+  void renameFile(FileModel file, String newName) {
+    final index = _savedFiles.indexOf(file);
+    if (index != -1) {
+      _savedFiles[index].name = newName;
+      notifyListeners();
+    }
+  }
+
   bool fileExists(String name) {
     return _savedFiles.any((file) => file.name == name);
   }

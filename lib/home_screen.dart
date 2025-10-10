@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:simple_app/screens/coming_soon_screen.dart';
 import 'package:simple_app/screens/create_file_screen.dart';
 import 'package:simple_app/screens/file_list_view.dart';
+import 'package:simple_app/screens/settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,9 +14,11 @@ class HomeScreen extends StatefulWidget {
 class HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
+  // Add SettingsScreen to the list of main widgets
   static const List<Widget> _widgetOptions = <Widget>[
     FileListView(),
     CreateFileScreen(),
+    SettingsScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -30,14 +33,16 @@ class HomeScreenState extends State<HomeScreen> {
           _selectedIndex = 1;
         });
         break;
+      case 4: // Settings
+        setState(() {
+          _selectedIndex = 2;
+        });
+        break;
       case 1: // Search
         _navigateToComingSoon('Search');
         break;
       case 3: // AI Chat
         _navigateToComingSoon('AI Chat');
-        break;
-      case 4: // Settings
-        _navigateToComingSoon('Settings');
         break;
     }
   }
@@ -50,10 +55,18 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // Map the screen index back to the correct BottomNavigationBar index
   int get _navBarIndex {
-    if (_selectedIndex == 0) return 0; // Home
-    if (_selectedIndex == 1) return 2; // Create
-    return 0;
+    switch (_selectedIndex) {
+      case 0:
+        return 0; // Home
+      case 1:
+        return 2; // Create
+      case 2:
+        return 4; // Settings
+      default:
+        return 0;
+    }
   }
 
   @override

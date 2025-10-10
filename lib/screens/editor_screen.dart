@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:simple_app/models/file_model.dart';
 import 'package:flutter_code_editor/flutter_code_editor.dart';
-import 'package:flutter_highlight/themes/monokai-sublime.dart';
+import 'package:simple_app/models/settings_manager.dart';
 import 'package:highlight/languages/dart.dart';
 
 // IMPORTANT: Insert your own paiza.io API key here.
@@ -134,6 +135,9 @@ class EditorScreenState extends State<EditorScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Listen to SettingsManager changes
+    final settingsManager = Provider.of<SettingsManager>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.file.name),
@@ -157,11 +161,15 @@ class EditorScreenState extends State<EditorScreen> {
           Expanded(
             flex: 3,
             child: CodeTheme(
-              data: CodeThemeData(styles: monokaiSublimeTheme),
+              data: CodeThemeData(styles: settingsManager.currentTheme),
               child: SingleChildScrollView(
                 child: CodeField(
                   controller: _codeController,
                   minLines: 10,
+                  textStyle: TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: settingsManager.fontSize,
+                  ),
                 ),
               ),
             ),
