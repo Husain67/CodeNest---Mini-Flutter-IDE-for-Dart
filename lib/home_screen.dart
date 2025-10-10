@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:simple_app/screens/coming_soon_screen.dart';
 import 'package:simple_app/screens/create_file_screen.dart';
 import 'package:simple_app/screens/file_list_view.dart';
+import 'package:simple_app/screens/search_screen.dart';
 import 'package:simple_app/screens/settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -14,36 +15,29 @@ class HomeScreen extends StatefulWidget {
 class HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
-  // Add SettingsScreen to the list of main widgets
+  // Add SearchScreen and SettingsScreen to the list of main widgets
   static const List<Widget> _widgetOptions = <Widget>[
     FileListView(),
+    SearchScreen(),
     CreateFileScreen(),
     SettingsScreen(),
   ];
 
   void _onItemTapped(int index) {
-    switch (index) {
-      case 0: // Home
-        setState(() {
-          _selectedIndex = 0;
-        });
-        break;
-      case 2: // Create
-        setState(() {
-          _selectedIndex = 1;
-        });
-        break;
-      case 4: // Settings
-        setState(() {
-          _selectedIndex = 2;
-        });
-        break;
-      case 1: // Search
-        _navigateToComingSoon('Search');
-        break;
-      case 3: // AI Chat
-        _navigateToComingSoon('AI Chat');
-        break;
+    // A map to associate bottom bar index with the screen index in _widgetOptions
+    const Map<int, int?> tabIndexMap = {
+      0: 0, // Home -> FileListView
+      1: 1, // Search -> SearchScreen
+      2: 2, // Create -> CreateFileScreen
+      4: 3, // Settings -> SettingsScreen
+    };
+
+    if (tabIndexMap.containsKey(index)) {
+      setState(() {
+        _selectedIndex = tabIndexMap[index]!;
+      });
+    } else if (index == 3) { // AI Chat
+      _navigateToComingSoon('AI Chat');
     }
   }
 
@@ -57,16 +51,13 @@ class HomeScreenState extends State<HomeScreen> {
 
   // Map the screen index back to the correct BottomNavigationBar index
   int get _navBarIndex {
-    switch (_selectedIndex) {
-      case 0:
-        return 0; // Home
-      case 1:
-        return 2; // Create
-      case 2:
-        return 4; // Settings
-      default:
-        return 0;
-    }
+    const Map<int, int> screenIndexMap = {
+      0: 0, // FileListView -> Home
+      1: 1, // SearchScreen -> Search
+      2: 2, // CreateFileScreen -> Create
+      3: 4, // SettingsScreen -> Settings
+    };
+    return screenIndexMap[_selectedIndex] ?? 0;
   }
 
   @override
