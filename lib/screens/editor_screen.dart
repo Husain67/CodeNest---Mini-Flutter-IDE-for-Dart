@@ -127,12 +127,14 @@ class EditorScreenState extends State<EditorScreen> {
     } catch (e) {
       output = 'An error occurred: $e';
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
-      // Save the output and then show it
-      Provider.of<SettingsManager>(context, listen: false).setLastConsoleOutput(output);
-      _showOutputSheet(output);
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        // Save the output and then show it
+        Provider.of<SettingsManager>(context, listen: false).setLastConsoleOutput(output);
+        _showOutputSheet(output);
+      }
     }
   }
 
