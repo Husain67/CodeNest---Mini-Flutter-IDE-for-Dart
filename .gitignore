@@ -50,3 +50,6 @@ app.*.map.json
 # Environment-specific files
 android/local.properties
 **/ios/Flutter/Generated.xcconfig
+
+# Google Services file
+**/google-services.json

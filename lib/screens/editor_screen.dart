@@ -23,7 +23,6 @@ class EditorScreen extends StatefulWidget {
 
 class EditorScreenState extends State<EditorScreen> {
   late CodeController _codeController;
-  String _output = '';
   bool _isLoading = false;
 
   final List<String> _dartKeywords = const [
@@ -55,20 +54,58 @@ class EditorScreenState extends State<EditorScreen> {
     });
   }
 
+  void _showOutputSheet(String output) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.4,
+          width: double.infinity,
+          color: Colors.black,
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Console Output',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+              const Divider(color: Colors.grey),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Text(
+                    output,
+                    style: const TextStyle(
+                      fontFamily: 'monospace',
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _runCode() async {
     if (_isLoading) return;
 
     if (paizaApiKey == 'guest' || paizaApiKey.isEmpty) {
-      setState(() {
-        _output = 'Error: API Key is not set.\nPlease set your paiza.io API key in editor_screen.dart';
-      });
+      _showOutputSheet('Error: API Key is not set.\nPlease set your paiza.io API key in editor_screen.dart');
       return;
     }
 
     setState(() {
       _isLoading = true;
-      _output = 'Executing code...';
     });
+
+    String output = ''; // Initialized to fix the null safety error.
 
     try {
       final response = await http.post(
@@ -83,24 +120,21 @@ class EditorScreenState extends State<EditorScreen> {
 
       if (response.statusCode == 200) {
         final id = jsonDecode(response.body)['id'];
-        await _getExecutionDetails(id);
+        output = await _getExecutionDetails(id);
       } else {
-        setState(() {
-          _output = 'Error creating runner: ${response.body}';
-        });
+        output = 'Error creating runner: ${response.body}';
       }
     } catch (e) {
-      setState(() {
-        _output = 'An error occurred: $e';
-      });
+      output = 'An error occurred: $e';
     } finally {
       setState(() {
         _isLoading = false;
       });
+      _showOutputSheet(output);
     }
   }
 
-  Future<void> _getExecutionDetails(String id) async {
+  Future<String> _getExecutionDetails(String id) async {
     await Future.delayed(const Duration(seconds: 2));
     try {
       final response = await http.get(
@@ -118,24 +152,17 @@ class EditorScreenState extends State<EditorScreen> {
         if (details['build_stderr'] != null && details['build_stderr'].isNotEmpty) {
           result += 'Build Error:\n${details['build_stderr']}';
         }
-        setState(() {
-          _output = result.isEmpty ? 'Execution finished with no output.' : result;
-        });
+        return result.isEmpty ? 'Execution finished with no output.' : result;
       } else {
-        setState(() {
-          _output = 'Error getting details: ${response.body}';
-        });
+        return 'Error getting details: ${response.body}';
       }
     } catch (e) {
-      setState(() {
-        _output = 'An error occurred while fetching details: $e';
-      });
+      return 'An error occurred while fetching details: $e';
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Listen to SettingsManager changes
     final settingsManager = Provider.of<SettingsManager>(context);
 
     return Scaffold(
@@ -155,59 +182,18 @@ class EditorScreenState extends State<EditorScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Code Editor
-          Expanded(
-            flex: 3,
-            child: CodeTheme(
-              data: CodeThemeData(styles: settingsManager.currentTheme),
-              child: SingleChildScrollView(
-                child: CodeField(
-                  controller: _codeController,
-                  minLines: 10,
-                  textStyle: TextStyle(
-                    fontFamily: 'monospace',
-                    fontSize: settingsManager.fontSize,
-                  ),
-                ),
-              ),
+      body: CodeTheme(
+        data: CodeThemeData(styles: settingsManager.currentTheme),
+        child: SingleChildScrollView(
+          child: CodeField(
+            controller: _codeController,
+            minLines: 25,
+            textStyle: TextStyle(
+              fontFamily: 'monospace',
+              fontSize: settingsManager.fontSize,
             ),
           ),
-          // Console Output
-          Expanded(
-            flex: 1,
-            child: Container(
-              width: double.infinity,
-              color: Colors.black,
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Console',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const Divider(color: Colors.grey),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Text(
-                        _output,
-                        style: const TextStyle(
-                          fontFamily: 'monospace',
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
