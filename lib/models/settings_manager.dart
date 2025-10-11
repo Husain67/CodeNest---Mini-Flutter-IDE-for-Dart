@@ -14,11 +14,18 @@ class SettingsManager extends ChangeNotifier {
 
   String _currentThemeName = 'Monokai Sublime';
   double _fontSize = 16.0;
+  String _lastConsoleOutput = '';
 
   String get currentThemeName => _currentThemeName;
   Map<String, TextStyle> get currentTheme => _availableThemes[_currentThemeName]!;
   double get fontSize => _fontSize;
+  String get lastConsoleOutput => _lastConsoleOutput;
   List<String> get availableThemeNames => _availableThemes.keys.toList();
+
+  void setLastConsoleOutput(String output) {
+    _lastConsoleOutput = output;
+    // We don't need to notify listeners for this, as it's not directly displayed
+  }
 
   void setTheme(String themeName) {
     if (_availableThemes.containsKey(themeName)) {

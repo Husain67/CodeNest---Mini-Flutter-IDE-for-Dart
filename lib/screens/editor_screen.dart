@@ -130,6 +130,8 @@ class EditorScreenState extends State<EditorScreen> {
       setState(() {
         _isLoading = false;
       });
+      // Save the output and then show it
+      Provider.of<SettingsManager>(context, listen: false).setLastConsoleOutput(output);
       _showOutputSheet(output);
     }
   }
