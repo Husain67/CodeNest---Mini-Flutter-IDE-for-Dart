@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:simple_app/home_screen.dart';
 import 'package:simple_app/models/file_manager.dart';
 import 'package:simple_app/models/settings_manager.dart';
+import 'package:simple_app/models/chat_manager.dart';
 import 'package:simple_app/screens/error_screen.dart';
 
 // Global key to access the navigator from anywhere.
@@ -24,6 +25,7 @@ void main() {
         providers: [
           ChangeNotifierProvider(create: (context) => FileManager()),
           ChangeNotifierProvider(create: (context) => SettingsManager()),
+          ChangeNotifierProvider(create: (context) => ChatManager()),
         ],
         child: const MyApp(),
       ),
@@ -45,19 +47,33 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: navigatorKey, // Assign the global key
-      title: 'Dart Edit Runner',
-      theme: ThemeData.dark().copyWith(
-        primaryColor: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          backgroundColor: Colors.grey[900],
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.grey[400],
-        ),
-      ),
-      home: const HomeScreen(),
+    return Consumer<SettingsManager>(
+      builder: (context, settingsManager, child) {
+        return MaterialApp(
+          navigatorKey: navigatorKey, // Assign the global key
+          title: 'Dart Edit Runner',
+          theme: settingsManager.isDarkMode
+              ? ThemeData.dark().copyWith(
+                  primaryColor: Colors.blue,
+                  visualDensity: VisualDensity.adaptivePlatformDensity,
+                  bottomNavigationBarTheme: BottomNavigationBarThemeData(
+                    backgroundColor: Colors.grey[900],
+                    selectedItemColor: Colors.white,
+                    unselectedItemColor: Colors.grey[400],
+                  ),
+                )
+              : ThemeData.light().copyWith(
+                  primaryColor: Colors.blue,
+                  visualDensity: VisualDensity.adaptivePlatformDensity,
+                  bottomNavigationBarTheme: BottomNavigationBarThemeData(
+                    backgroundColor: Colors.white,
+                    selectedItemColor: Colors.black,
+                    unselectedItemColor: Colors.grey[600],
+                  ),
+                ),
+          home: const HomeScreen(),
+        );
+      },
     );
   }
 }
