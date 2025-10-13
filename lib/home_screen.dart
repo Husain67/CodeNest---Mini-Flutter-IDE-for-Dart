@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:simple_app/models/chat_manager.dart';
 import 'package:simple_app/screens/chat_screen.dart';
 import 'package:simple_app/screens/create_file_screen.dart';
 import 'package:simple_app/screens/file_list_view.dart';
+import 'package:simple_app/screens/history_screen.dart';
 import 'package:simple_app/screens/search_screen.dart';
 import 'package:simple_app/screens/settings_screen.dart';
 
@@ -15,53 +18,29 @@ class HomeScreen extends StatefulWidget {
 class HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
-  // Add SearchScreen and SettingsScreen to the list of main widgets
+  // The order of screens/widgets in this list directly matches the bottom nav bar.
   static const List<Widget> _widgetOptions = <Widget>[
     FileListView(),
     SearchScreen(),
     CreateFileScreen(),
+    ChatScreen(),
     SettingsScreen(),
-    ChatScreen(), // Added ChatScreen
   ];
 
-  void _onItemTapped(int index) {
-    // A map to associate bottom bar index with the screen index in _widgetOptions
-    const Map<int, int?> tabIndexMap = {
-      0: 0, // Home -> FileListView
-      1: 1, // Search -> SearchScreen
-      2: 2, // Create -> CreateFileScreen
-      3: 4, // AI Chat -> ChatScreen
-      4: 3, // Settings -> SettingsScreen
-    };
-
-    if (tabIndexMap.containsKey(index)) {
-      setState(() {
-        _selectedIndex = tabIndexMap[index]!;
-      });
-    }
-  }
-
-  // Map the screen index back to the correct BottomNavigationBar index
-  int get _navBarIndex {
-    const Map<int, int> screenIndexMap = {
-      0: 0, // FileListView -> Home
-      1: 1, // SearchScreen -> Search
-      2: 2, // CreateFileScreen -> Create
-      3: 4, // SettingsScreen -> Settings
-      4: 3, // ChatScreen -> AI Chat
-    };
-    return screenIndexMap[_selectedIndex] ?? 0;
-  }
-
-import 'package.simple_app/screens/history_screen.dart';
-
+  // The titles corresponding to the widgets above.
   static const List<String> _widgetTitles = <String>[
     'Files',
     'Search',
     'Create',
-    'Settings',
     'AI Chat',
+    'Settings',
   ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   void _navigateToHistory() {
     Navigator.of(context).push(
@@ -82,7 +61,7 @@ import 'package.simple_app/screens/history_screen.dart';
             tooltip: 'New Tab',
             onPressed: () {
               Provider.of<ChatManager>(context, listen: false).startNewSession();
-              // Optionally, switch to the chat tab if not already there
+              // Switch to the chat tab (index 3)
               _onItemTapped(3);
             },
           ),
@@ -93,7 +72,7 @@ import 'package.simple_app/screens/history_screen.dart';
                   _navigateToHistory();
                   break;
                 case 'Settings':
-                  // Use the same function as the bottom bar to switch to settings
+                  // Switch to settings tab (index 4)
                   _onItemTapped(4);
                   break;
               }
@@ -137,7 +116,7 @@ import 'package.simple_app/screens/history_screen.dart';
             label: 'Settings',
           ),
         ],
-        currentIndex: _navBarIndex,
+        currentIndex: _selectedIndex, // The index is now direct and simple
         selectedItemColor: Colors.amber[800],
         onTap: _onItemTapped,
         type: BottomNavigationBarType.fixed,
