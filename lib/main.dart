@@ -1,30 +1,79 @@
-import 'package:flutter/foundation.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:device_preview/device_preview.dart';
-import 'home_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:simple_app/home_screen.dart';
+import 'package:simple_app/models/file_manager.dart';
+import 'package:simple_app/models/settings_manager.dart';
+import 'package:simple_app/models/chat_manager.dart';
+import 'package:simple_app/screens/error_screen.dart';
 
-void main() => runApp(
-  DevicePreview(
-    enabled: !kReleaseMode, // Enable it only in debug mode
-    builder: (context) => const MyApp(),
-  ),
-);
+// Global key to access the navigator from anywhere.
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+void main() {
+  runZonedGuarded<Future<void>>(() async {
+    // This will catch all errors during rendering and show our custom screen.
+    ErrorWidget.builder = (FlutterErrorDetails details) {
+      return ErrorScreen(
+        error: details.exception,
+        stackTrace: details.stack ?? StackTrace.current,
+      );
+    };
+
+    runApp(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (context) => FileManager()),
+          ChangeNotifierProvider(create: (context) => SettingsManager()),
+          ChangeNotifierProvider(create: (context) => ChatManager()),
+        ],
+        child: const MyApp(),
+      ),
+    );
+  }, (error, stack) {
+    // This will catch all other unhandled errors and navigate to our error screen.
+    debugPrint('Caught unhandled error: $error');
+    debugPrint(stack.toString());
+    if (navigatorKey.currentState != null) {
+      navigatorKey.currentState!.push(MaterialPageRoute(
+        builder: (context) => ErrorScreen(error: error, stackTrace: stack),
+      ));
+    }
+  });
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      useInheritedMediaQuery: true, // Important for device_preview
-      locale: DevicePreview.locale(context),
-      builder: DevicePreview.appBuilder,
-      title: 'Simple App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: const HomeScreen(),
+    return Consumer<SettingsManager>(
+      builder: (context, settingsManager, child) {
+        return MaterialApp(
+          navigatorKey: navigatorKey, // Assign the global key
+          title: 'Dart Edit Runner',
+          theme: settingsManager.isDarkMode
+              ? ThemeData.dark().copyWith(
+                  primaryColor: Colors.blue,
+                  visualDensity: VisualDensity.adaptivePlatformDensity,
+                  bottomNavigationBarTheme: BottomNavigationBarThemeData(
+                    backgroundColor: Colors.grey[900],
+                    selectedItemColor: Colors.white,
+                    unselectedItemColor: Colors.grey[400],
+                  ),
+                )
+              : ThemeData.light().copyWith(
+                  primaryColor: Colors.blue,
+                  visualDensity: VisualDensity.adaptivePlatformDensity,
+                  bottomNavigationBarTheme: BottomNavigationBarThemeData(
+                    backgroundColor: Colors.white,
+                    selectedItemColor: Colors.black,
+                    unselectedItemColor: Colors.grey[600],
+                  ),
+                ),
+          home: const HomeScreen(),
+        );
+      },
     );
   }
 }

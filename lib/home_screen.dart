@@ -1,91 +1,146 @@
 import 'package:flutter/material.dart';
-import 'package:simple_app/screens/feedback_screen.dart';
-import 'package:simple_app/screens/privacy_policy_screen.dart';
-import 'package:simple_app/screens/cloud_emulator_screen.dart';
-import 'package:simple_app/widgets/social_media_buttons.dart';
+import 'package:simple_app/screens/chat_screen.dart';
+import 'package:simple_app/screens/create_file_screen.dart';
+import 'package:simple_app/screens/file_list_view.dart';
+import 'package:simple_app/screens/search_screen.dart';
+import 'package:simple_app/screens/settings_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  HomeScreenState createState() => HomeScreenState();
+}
+
+class HomeScreenState extends State<HomeScreen> {
+  int _selectedIndex = 0;
+
+  // Add SearchScreen and SettingsScreen to the list of main widgets
+  static const List<Widget> _widgetOptions = <Widget>[
+    FileListView(),
+    SearchScreen(),
+    CreateFileScreen(),
+    SettingsScreen(),
+    ChatScreen(), // Added ChatScreen
+  ];
+
+  void _onItemTapped(int index) {
+    // A map to associate bottom bar index with the screen index in _widgetOptions
+    const Map<int, int?> tabIndexMap = {
+      0: 0, // Home -> FileListView
+      1: 1, // Search -> SearchScreen
+      2: 2, // Create -> CreateFileScreen
+      3: 4, // AI Chat -> ChatScreen
+      4: 3, // Settings -> SettingsScreen
+    };
+
+    if (tabIndexMap.containsKey(index)) {
+      setState(() {
+        _selectedIndex = tabIndexMap[index]!;
+      });
+    }
+  }
+
+  // Map the screen index back to the correct BottomNavigationBar index
+  int get _navBarIndex {
+    const Map<int, int> screenIndexMap = {
+      0: 0, // FileListView -> Home
+      1: 1, // SearchScreen -> Search
+      2: 2, // CreateFileScreen -> Create
+      3: 4, // SettingsScreen -> Settings
+      4: 3, // ChatScreen -> AI Chat
+    };
+    return screenIndexMap[_selectedIndex] ?? 0;
+  }
+
+import 'package.simple_app/screens/history_screen.dart';
+
+  static const List<String> _widgetTitles = <String>[
+    'Files',
+    'Search',
+    'Create',
+    'Settings',
+    'AI Chat',
+  ];
+
+  void _navigateToHistory() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const HistoryScreen(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
+        title: Text(_widgetTitles.elementAt(_selectedIndex)),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.add_box_outlined), // New Tab Icon
+            tooltip: 'New Tab',
+            onPressed: () {
+              Provider.of<ChatManager>(context, listen: false).startNewSession();
+              // Optionally, switch to the chat tab if not already there
+              _onItemTapped(3);
+            },
+          ),
+          PopupMenuButton<String>(
+            onSelected: (String result) {
+              switch (result) {
+                case 'History':
+                  _navigateToHistory();
+                  break;
+                case 'Settings':
+                  // Use the same function as the bottom bar to switch to settings
+                  _onItemTapped(4);
+                  break;
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'History',
+                child: Text('History'),
               ),
-              child: Text(
-                'Menu',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
+              const PopupMenuItem<String>(
+                value: 'Settings',
+                child: Text('Settings'),
               ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.feedback),
-              title: const Text('Feedback'),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const FeedbackScreen()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.cloud_circle),
-              title: const Text('Cloud Emulator'),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-                 Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const CloudEmulatorScreen()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.privacy_tip),
-              title: const Text('Privacy Policy'),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-                 Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const PrivacyPolicyScreen()),
-                );
-              },
-            ),
-            const Divider(),
-            const ListTile(
-              title: Text('App Version 1.0.0'),
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ),
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Welcome to our App!',
-              style: TextStyle(fontSize: 24),
-            ),
-            SizedBox(height: 40),
-            Text(
-              'Follow us on social media:',
-              style: TextStyle(fontSize: 16),
-            ),
-            SizedBox(height: 20),
-            SocialMediaButtons(),
-          ],
-        ),
+      body: Center(
+        child: _widgetOptions.elementAt(_selectedIndex),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: 'Search',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add),
+            label: 'Create',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat),
+            label: 'AI Chat',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+        ],
+        currentIndex: _navBarIndex,
+        selectedItemColor: Colors.amber[800],
+        onTap: _onItemTapped,
+        type: BottomNavigationBarType.fixed,
       ),
     );
   }
