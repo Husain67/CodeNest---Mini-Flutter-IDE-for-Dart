@@ -312,7 +312,7 @@ class _SideTabState extends State<SideTab> {
     );
 
     if (name != null && name.isNotEmpty) {
-      final newPath = p.join(_currentDirectory.path, name);
+      final newPath = p.join(directory.path, name);
       try {
         if (isDirectory) {
           await Directory(newPath).create();
