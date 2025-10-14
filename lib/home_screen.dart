@@ -7,8 +7,6 @@ import 'package:simple_app/screens/file_list_view.dart';
 import 'package:simple_app/screens/history_screen.dart';
 import 'package:simple_app/screens/search_screen.dart';
 import 'package:simple_app/screens/settings_screen.dart';
-import 'package:simple_app/models/chat_manager.dart';
-import 'package:simple_app/screens/history_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

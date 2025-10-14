@@ -108,7 +108,7 @@ class _SideTabState extends State<SideTab> {
                           p.basename(entity.path),
                           style: const TextStyle(color: Colors.white),
                         ),
-                        tileColor: isSelected ? Colors.blue.withOpacity(0.5) : null,
+                        tileColor: isSelected ? Colors.blue.withAlpha(128) : null,
                         onTap: () {
                           if (isDirectory) {
                             _navigateToDirectory(entity);
@@ -175,7 +175,7 @@ class _SideTabState extends State<SideTab> {
           _buildButton(Icons.redo, 'Redo', () => widget.codeController.redo()),
           _buildButton(Icons.download, 'Download', _downloadSelectedFile),
           _buildGitHubButton(),
-          _buildButton(Icons.bug_report, 'Debug', () {}),
+          _buildButton(Icons.bug_report, 'Debug', () => _showSnackbar('Debug feature is not yet implemented.')),
           _buildButton(Icons.archive, 'Zip', _zipProject),
         ],
       ),
@@ -203,7 +203,8 @@ class _SideTabState extends State<SideTab> {
   }
 
   Future<void> _deleteSelected() async {
-    if (_selectedEntity == null) {
+    final entity = _selectedEntity;
+    if (entity == null) {
       _showSnackbar('No file or folder selected.');
       return;
     }
@@ -212,7 +213,7 @@ class _SideTabState extends State<SideTab> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Confirm Deletion'),
-        content: Text('Are you sure you want to delete ${p.basename(_selectedEntity!.path)}?'),
+        content: Text('Are you sure you want to delete ${p.basename(entity.path)}?'),
         actions: [
           TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
           TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Delete')),
@@ -235,26 +236,32 @@ class _SideTabState extends State<SideTab> {
   }
 
   void _copySelected() {
-    if (_selectedEntity == null) {
+    final entity = _selectedEntity;
+    if (entity == null) {
       _showSnackbar('No file or folder selected.');
       return;
     }
     setState(() {
-      _copiedEntity = _selectedEntity;
+      _copiedEntity = entity;
     });
-    _showSnackbar('Copied ${p.basename(_copiedEntity!.path)}');
+    _showSnackbar('Copied ${p.basename(entity.path)}');
   }
 
   Future<void> _paste() async {
-    if (_copiedEntity == null) {
+    final entityToPaste = _copiedEntity;
+    if (entityToPaste == null) {
       _showSnackbar('Nothing to paste.');
       return;
     }
+    if (_currentDirectory == null) {
+      _showSnackbar('Cannot paste: directory not available.');
+      return;
+    }
 
-    final newPath = p.join(_currentDirectory.path, p.basename(_copiedEntity!.path));
+    final newPath = p.join(_currentDirectory!.path, p.basename(entityToPaste.path));
 
     try {
-      if (_copiedEntity is File) {
+      if (entityToPaste is File) {
         await (_copiedEntity as File).copy(newPath);
       } else if (_copiedEntity is Directory) {
         await _copyDirectory(_copiedEntity as Directory, Directory(newPath));
@@ -279,6 +286,10 @@ class _SideTabState extends State<SideTab> {
   }
 
   Future<void> _createNew({required bool isDirectory}) async {
+    if (_currentDirectory == null) {
+      _showSnackbar('Cannot create: directory not available.');
+      return;
+    }
     final controller = TextEditingController();
     final name = await showDialog<String>(
       context: context,
