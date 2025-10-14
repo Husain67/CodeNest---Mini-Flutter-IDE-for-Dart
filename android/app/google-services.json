@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "47108552775",
+    "project_id": "dart-editer",
+    "storage_bucket": "dart-editer.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:47108552775:android:51ee882c277b43711b5962",
+        "android_client_info": {
+          "package_name": "com.example.myapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCMMTc9SF0IF9vMF97fQye-TttqoBtqWLs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
