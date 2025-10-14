@@ -253,12 +253,13 @@ class _SideTabState extends State<SideTab> {
       _showSnackbar('Nothing to paste.');
       return;
     }
-    if (_currentDirectory == null) {
+    final directory = _currentDirectory;
+    if (directory == null) {
       _showSnackbar('Cannot paste: directory not available.');
       return;
     }
 
-    final newPath = p.join(_currentDirectory!.path, p.basename(entityToPaste.path));
+    final newPath = p.join(directory.path, p.basename(entityToPaste.path));
 
     try {
       if (entityToPaste is File) {
@@ -286,7 +287,8 @@ class _SideTabState extends State<SideTab> {
   }
 
   Future<void> _createNew({required bool isDirectory}) async {
-    if (_currentDirectory == null) {
+    final directory = _currentDirectory;
+    if (directory == null) {
       _showSnackbar('Cannot create: directory not available.');
       return;
     }

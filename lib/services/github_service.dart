@@ -38,7 +38,7 @@ class GitHubService {
       }
     });
 
-    final code = await completer.future;
+    await completer.future; // Wait for the callback, but we don't use the code
     sub.cancel();
 
     // Exchange code for an access token (simplified, no server-side component)
