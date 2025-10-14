@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -8,6 +9,7 @@ import 'package:flutter_code_editor/flutter_code_editor.dart';
 import 'package:simple_app/models/settings_manager.dart';
 import 'package:highlight/languages/dart.dart';
 import 'package:simple_app/widgets/file_tree.dart';
+import 'package:simple_app/widgets/side_tab.dart';
 
 // IMPORTANT: Insert your own paiza.io API key here.
 // You can get a free key from the paiza.io website.
@@ -383,6 +385,7 @@ class _EditorTabContentState extends State<_EditorTabContent> {
 class EditorScreenState extends State<EditorScreen> {
   late CodeController _codeController;
   bool _isLoading = false;
+  bool _isSideTabVisible = true;
 
   final List<String> _dartKeywords = const [
     'abstract', 'else', 'import', 'super', 'as', 'enum', 'in', 'switch',
@@ -543,20 +546,35 @@ class EditorScreenState extends State<EditorScreen> {
                 : const Icon(Icons.play_arrow),
             onPressed: _runCode,
           ),
+          IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () {
+              setState(() {
+                _isSideTabVisible = !_isSideTabVisible;
+              });
+            },
+          ),
         ],
       ),
-      body: CodeTheme(
-        data: CodeThemeData(styles: settingsManager.currentTheme),
-        child: SingleChildScrollView(
-          child: CodeField(
-            controller: _codeController,
-            minLines: 25,
-            textStyle: TextStyle(
-              fontFamily: 'monospace',
-              fontSize: settingsManager.fontSize,
+      body: Row(
+        children: [
+          Expanded(
+            child: CodeTheme(
+              data: CodeThemeData(styles: settingsManager.currentTheme),
+              child: SingleChildScrollView(
+                child: CodeField(
+                  controller: _codeController,
+                  minLines: 40,
+                  textStyle: TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: settingsManager.fontSize,
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
+          if (_isSideTabVisible) SideTab(codeController: _codeController),
+        ],
       ),
     );
   }
