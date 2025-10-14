@@ -5,8 +5,8 @@ import 'package:uni_links/uni_links.dart';
 
 class GitHubService {
   // IMPORTANT: Replace with your actual GitHub OAuth App credentials.
-  // These are placeholder values.
-  final String clientId = 'YOUR_CLIENT_ID';
+  // You can get one for free from your GitHub developer settings.
+  final String clientId = ''; // <-- PASTE YOUR GITHUB OAUTH CLIENT ID HERE
   final List<String> scopes = ['repo', 'user'];
 
   GitHub? _github;
@@ -38,7 +38,7 @@ class GitHubService {
       }
     });
 
-    final code = await completer.future;
+    await completer.future; // Wait for the callback, but we don't use the code
     sub.cancel();
 
     // Exchange code for an access token (simplified, no server-side component)
@@ -52,8 +52,6 @@ class GitHubService {
 
     // For now, the authentication process stops after getting the code.
     // A full implementation is required to make this functional.
-    print('Received authorization code: $code');
-    print('A backend service is required to exchange this code for an access token.');
 
     // Since we cannot proceed, we cannot create a GitHub instance.
     // _github = GitHub(auth: Authentication.withToken(accessToken));

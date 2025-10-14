@@ -17,22 +17,39 @@ class SideTab extends StatefulWidget {
 }
 
 class _SideTabState extends State<SideTab> {
-  late Directory _currentDirectory;
+  Directory? _currentDirectory;
   List<FileSystemEntity> _files = [];
   FileSystemEntity? _selectedEntity;
   FileSystemEntity? _copiedEntity;
   final GitHubService _gitHubService = GitHubService();
   bool _isPushing = false;
+  bool _isLoadingDirectory = true;
 
   @override
   void initState() {
     super.initState();
-    _currentDirectory = Directory.current;
-    _loadFiles();
+    _initDirectory();
+  }
+
+  Future<void> _initDirectory() async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      setState(() {
+        _currentDirectory = directory;
+        _isLoadingDirectory = false;
+      });
+      _loadFiles();
+    } catch (e) {
+      setState(() {
+        _isLoadingDirectory = false;
+      });
+      _showSnackbar("Error getting documents directory: $e");
+    }
   }
 
   void _loadFiles() async {
-    final files = await _currentDirectory.list().toList();
+    if (_currentDirectory == null) return;
+    final files = await _currentDirectory!.list().toList();
     setState(() {
       _files = files;
     });
@@ -47,6 +64,23 @@ class _SideTabState extends State<SideTab> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoadingDirectory) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_currentDirectory == null) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Text(
+            'Error: Could not access project directory.',
+            style: TextStyle(color: Colors.white70),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+
     return Container(
       width: 250,
       color: Colors.grey[900],
@@ -56,7 +90,9 @@ class _SideTabState extends State<SideTab> {
           _buildHeader(),
           Expanded(
             child: _files.isEmpty
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(
+                    child: Text('Empty directory', style: TextStyle(color: Colors.white70)),
+                  )
                 : ListView.builder(
                     itemCount: _files.length,
                     itemBuilder: (context, index) {
@@ -72,7 +108,7 @@ class _SideTabState extends State<SideTab> {
                           p.basename(entity.path),
                           style: const TextStyle(color: Colors.white),
                         ),
-                        tileColor: isSelected ? Colors.blue.withOpacity(0.5) : null,
+                        tileColor: isSelected ? Colors.blue.withAlpha(128) : null,
                         onTap: () {
                           if (isDirectory) {
                             _navigateToDirectory(entity);
@@ -95,6 +131,10 @@ class _SideTabState extends State<SideTab> {
   }
 
   Widget _buildHeader() {
+    // Determine if the "up" button should be enabled
+    final parent = _currentDirectory?.parent;
+    final canGoUp = parent != null && p.canonicalize(parent.path) != p.canonicalize(_currentDirectory!.path);
+
     return Container(
       padding: const EdgeInsets.all(8.0),
       color: Colors.grey[850],
@@ -102,14 +142,11 @@ class _SideTabState extends State<SideTab> {
         children: [
           IconButton(
             icon: const Icon(Icons.arrow_upward, color: Colors.white),
-            onPressed: () {
-              final parent = _currentDirectory.parent;
-              _navigateToDirectory(parent);
-            },
+            onPressed: canGoUp ? () => _navigateToDirectory(parent) : null,
           ),
           Expanded(
             child: Text(
-              p.basename(_currentDirectory.path),
+              p.basename(_currentDirectory?.path ?? '...'),
               style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               overflow: TextOverflow.ellipsis,
             ),
@@ -138,7 +175,7 @@ class _SideTabState extends State<SideTab> {
           _buildButton(Icons.redo, 'Redo', () => widget.codeController.redo()),
           _buildButton(Icons.download, 'Download', _downloadSelectedFile),
           _buildGitHubButton(),
-          _buildButton(Icons.bug_report, 'Debug', () {}),
+          _buildButton(Icons.bug_report, 'Debug', () => _showSnackbar('Debug feature is not yet implemented.')),
           _buildButton(Icons.archive, 'Zip', _zipProject),
         ],
       ),
@@ -166,7 +203,8 @@ class _SideTabState extends State<SideTab> {
   }
 
   Future<void> _deleteSelected() async {
-    if (_selectedEntity == null) {
+    final entity = _selectedEntity;
+    if (entity == null) {
       _showSnackbar('No file or folder selected.');
       return;
     }
@@ -175,7 +213,7 @@ class _SideTabState extends State<SideTab> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Confirm Deletion'),
-        content: Text('Are you sure you want to delete ${p.basename(_selectedEntity!.path)}?'),
+        content: Text('Are you sure you want to delete ${p.basename(entity.path)}?'),
         actions: [
           TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
           TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Delete')),
@@ -198,26 +236,33 @@ class _SideTabState extends State<SideTab> {
   }
 
   void _copySelected() {
-    if (_selectedEntity == null) {
+    final entity = _selectedEntity;
+    if (entity == null) {
       _showSnackbar('No file or folder selected.');
       return;
     }
     setState(() {
-      _copiedEntity = _selectedEntity;
+      _copiedEntity = entity;
     });
-    _showSnackbar('Copied ${p.basename(_copiedEntity!.path)}');
+    _showSnackbar('Copied ${p.basename(entity.path)}');
   }
 
   Future<void> _paste() async {
-    if (_copiedEntity == null) {
+    final entityToPaste = _copiedEntity;
+    if (entityToPaste == null) {
       _showSnackbar('Nothing to paste.');
       return;
     }
+    final directory = _currentDirectory;
+    if (directory == null) {
+      _showSnackbar('Cannot paste: directory not available.');
+      return;
+    }
 
-    final newPath = p.join(_currentDirectory.path, p.basename(_copiedEntity!.path));
+    final newPath = p.join(directory.path, p.basename(entityToPaste.path));
 
     try {
-      if (_copiedEntity is File) {
+      if (entityToPaste is File) {
         await (_copiedEntity as File).copy(newPath);
       } else if (_copiedEntity is Directory) {
         await _copyDirectory(_copiedEntity as Directory, Directory(newPath));
@@ -242,6 +287,11 @@ class _SideTabState extends State<SideTab> {
   }
 
   Future<void> _createNew({required bool isDirectory}) async {
+    final directory = _currentDirectory;
+    if (directory == null) {
+      _showSnackbar('Cannot create: directory not available.');
+      return;
+    }
     final controller = TextEditingController();
     final name = await showDialog<String>(
       context: context,
@@ -262,7 +312,7 @@ class _SideTabState extends State<SideTab> {
     );
 
     if (name != null && name.isNotEmpty) {
-      final newPath = p.join(_currentDirectory.path, name);
+      final newPath = p.join(directory.path, name);
       try {
         if (isDirectory) {
           await Directory(newPath).create();
@@ -359,6 +409,10 @@ class _SideTabState extends State<SideTab> {
   }
 
   Future<void> _zipProject() async {
+    if (_currentDirectory == null) {
+      _showSnackbar('Project directory not available.');
+      return;
+    }
     _showSnackbar('Zipping project...');
     try {
       final downloadsDirectory = await getDownloadsDirectory();
@@ -367,15 +421,16 @@ class _SideTabState extends State<SideTab> {
         return;
       }
 
-      final projectName = p.basename(Directory.current.path);
+      final projectName = p.basename(_currentDirectory!.path);
       final zipFilePath = p.join(downloadsDirectory.path, '$projectName.zip');
 
       final encoder = ZipFileEncoder();
       encoder.create(zipFilePath);
 
-      await for (final entity in Directory.current.list(recursive: true, followLinks: false)) {
+      final projectDir = _currentDirectory!;
+      await for (final entity in projectDir.list(recursive: true, followLinks: false)) {
         if (entity is File) {
-          final relativePath = p.relative(entity.path, from: Directory.current.path);
+          final relativePath = p.relative(entity.path, from: projectDir.path);
           // Simple check to avoid zipping the zip file itself or .git folder
           if (p.extension(relativePath) == '.zip' || p.split(relativePath).contains('.git')) {
             continue;
