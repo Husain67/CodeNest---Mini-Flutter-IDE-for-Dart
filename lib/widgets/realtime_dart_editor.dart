@@ -55,7 +55,7 @@ class MyApp extends StatelessWidget {
     );
 
     // Listen to changes in the analysis to rebuild the UI and show issues.
-    _codeController.analyzer.analysis.listen((analysis) {
+    _codeController.analysis.listen((analysis) {
       if (mounted) {
         setState(() {});
       }
@@ -95,7 +95,7 @@ class MyApp extends StatelessWidget {
 
   // Builds the list of issues found by the analyzer.
   Widget _buildAnalysisIssuesPanel() {
-    final analysis = _codeController.analyzer.analysis.value;
+    final analysis = _codeController.analysis.value;
     final issues = analysis is ParsedUnitResult
         ? analysis.errors.map((e) => e.message).toList()
         : ['Analysis running...'];
