@@ -12,7 +12,6 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   late TextEditingController _apiKeyController;
   late TextEditingController _modelNameController;
-  bool _isDarkMode = true; // Assuming default is dark mode based on theme
 
   @override
   void initState() {

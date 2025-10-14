@@ -111,7 +111,7 @@ class _ChatScreenState extends State<ChatScreen> {
               padding: const EdgeInsets.all(12.0),
               decoration: BoxDecoration(
                 color: message.isUserMessage
-                    ? Theme.of(context).colorScheme.primary.withOpacity(0.8)
+                    ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.8)
                     : Colors.grey[700],
                 borderRadius: BorderRadius.circular(18.0),
               ),

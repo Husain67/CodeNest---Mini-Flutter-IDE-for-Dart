@@ -98,7 +98,7 @@ class FileListView extends StatelessWidget {
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => EditorScreen(file: file),
+                        builder: (context) => const SideTabEditor(),
                       ),
                     );
                   },
