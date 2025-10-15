@@ -25,16 +25,25 @@ class SettingsManager extends ChangeNotifier {
   List<String> get availableThemeNames => _availableThemes.keys.toList();
   String get openRouterApiKey => _openRouterApiKey;
   String get openRouterModelName => _openRouterModelName;
-  bool _isDarkMode = true; // Default to dark mode
-  bool get isDarkMode => _isDarkMode;
+
+  ThemeMode _themeMode = ThemeMode.dark;
+  ThemeMode get themeMode => _themeMode;
+
+  bool _eyeProtection = false;
+  bool get eyeProtection => _eyeProtection;
 
   void setLastConsoleOutput(String output) {
     _lastConsoleOutput = output;
     // We don't need to notify listeners for this, as it's not directly displayed
   }
 
-  void toggleDarkMode() {
-    _isDarkMode = !_isDarkMode;
+  void setThemeMode(ThemeMode mode) {
+    _themeMode = mode;
+    notifyListeners();
+  }
+
+  void toggleEyeProtection() {
+    _eyeProtection = !_eyeProtection;
     notifyListeners();
   }
 
