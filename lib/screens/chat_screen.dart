@@ -245,12 +245,38 @@ class _ChatScreenState extends State<ChatScreen> {
       context: context,
       builder: (_) => AlertDialog(
         title: Text("security".tr()),
-        content: const TextField(
-          obscureText: true,
-          decoration: InputDecoration(labelText: "Enter PIN"),
+        content: const SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Your security and privacy are important to us. Here’s how we protect your data:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 16),
+              ListTile(
+                leading: Icon(Icons.lock_outline),
+                title: Text('End-to-End Encryption'),
+                subtitle: Text('All conversations are encrypted between you and the AI. (Note: This is a simulation for demo purposes).'),
+              ),
+              ListTile(
+                leading: Icon(Icons.no_accounts_outlined),
+                title: Text('No Personal Data Storage'),
+                subtitle: Text('Your chat history can be saved locally on your device via the History feature, but we do not store your personal information on our servers.'),
+              ),
+              ListTile(
+                leading: Icon(Icons.api_outlined),
+                title: Text('API Key Security'),
+                subtitle: Text('Your OpenRouter API key is stored securely on your device and is only used to communicate with the AI model.'),
+              ),
+            ],
+          ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text("Save"))
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Close"),
+          ),
         ],
       ),
     );
@@ -293,6 +319,22 @@ class _ChatScreenState extends State<ChatScreen> {
         margin: const EdgeInsets.symmetric(horizontal: 8.0),
         child: Row(
           children: <Widget>[
+            // Emoji Icon
+            IconButton(
+              icon: const Icon(Icons.emoji_emotions_outlined),
+              onPressed: () {
+                // Emoji picker logic will be added later
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Emoji feature coming soon!")),
+                );
+              },
+            ),
+            // Attach File Icon
+            IconButton(
+              icon: const Icon(Icons.attach_file),
+              onPressed: _attachFile,
+            ),
+            // Text Field
             Flexible(
               child: TextField(
                 controller: _textController,
@@ -302,6 +344,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
             ),
+            // Send Button
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 4.0),
               child: IconButton(
